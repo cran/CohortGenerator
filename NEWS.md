@@ -1,7 +1,12 @@
+CohortGenerator 0.11.2
+=======================
+
+- Ensure temp tables are dropped before creating them (#188)
+
 CohortGenerator 0.11.1
 =======================
 
-- Submit CohortGeneratotr to CRAN (#77)
+- CohortGenerator added to CRAN (#77)
 
 CohortGenerator 0.11.0
 =======================
