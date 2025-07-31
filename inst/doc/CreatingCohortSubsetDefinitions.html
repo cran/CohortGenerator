@@ -9,9 +9,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="James P. Gilbert and Anthony G. Sena" />
+<meta name="author" content="James P. Gilbert, Freddy Avila Cruz and Anthony G. Sena" />
 
-<meta name="date" content="2024-09-30" />
+<meta name="date" content="2025-07-31" />
 
 <title>Creating Cohort Subset Definitions</title>
 
@@ -351,470 +351,337 @@ display: none;
 
 
 <h1 class="title toc-ignore">Creating Cohort Subset Definitions</h1>
-<h4 class="author">James P. Gilbert and Anthony G. Sena</h4>
-<h4 class="date">2024-09-30</h4>
+<h4 class="author">James P. Gilbert, Freddy Avila Cruz and Anthony G.
+Sena</h4>
+<h4 class="date">2025-07-31</h4>
 
 </div>
 
 <div id="TOC">
 <ul>
-<li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">1</span> Introduction</a></li>
-<li><a href="#subset-definitions" id="toc-subset-definitions"><span class="toc-section-number">2</span> Subset definitions</a>
+<li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">1</span> Introduction</a>
 <ul>
-<li><a href="#demographic-subset-operations" id="toc-demographic-subset-operations"><span class="toc-section-number">2.1</span> Demographic subset
-operations</a></li>
-<li><a href="#subsetting-to-other-cohorts" id="toc-subsetting-to-other-cohorts"><span class="toc-section-number">2.2</span> Subsetting to other
-cohorts</a></li>
+<li><a href="#subset-operators" id="toc-subset-operators"><span class="toc-section-number">1.1</span> Subset Operators</a></li>
+<li><a href="#subset-definition" id="toc-subset-definition"><span class="toc-section-number">1.2</span> Subset Definition</a></li>
 </ul></li>
-<li><a href="#creating-cohort-subset-definitions" id="toc-creating-cohort-subset-definitions"><span class="toc-section-number">3</span> Creating cohort subset
+<li><a href="#creating-cohort-subset-definitions" id="toc-creating-cohort-subset-definitions"><span class="toc-section-number">2</span> Creating cohort subset
 definitions</a>
 <ul>
-<li><a href="#defining-a-subset-definition" id="toc-defining-a-subset-definition"><span class="toc-section-number">3.1</span> Defining a subset
+<li><a href="#cohort-definition-set" id="toc-cohort-definition-set"><span class="toc-section-number">2.1</span> Cohort Definition Set</a></li>
+<li><a href="#subset-operators-1" id="toc-subset-operators-1"><span class="toc-section-number">2.2</span> Subset operators</a></li>
+<li><a href="#create-the-subset-definition" id="toc-create-the-subset-definition"><span class="toc-section-number">2.3</span> Create the subset
 definition</a></li>
-<li><a href="#reusing-subset-operators-in-multiple-definitions" id="toc-reusing-subset-operators-in-multiple-definitions"><span class="toc-section-number">3.2</span> Reusing subset operators in
-multiple definitions</a></li>
-<li><a href="#applying-subset-definitions-to-a-cohort-definition-set" id="toc-applying-subset-definitions-to-a-cohort-definition-set"><span class="toc-section-number">3.3</span> Applying subset definitions to a
-cohort definition set</a></li>
+<li><a href="#adding-subsets-to-cohort-definition-set" id="toc-adding-subsets-to-cohort-definition-set"><span class="toc-section-number">2.4</span> Adding subsets to Cohort
+Definition Set</a></li>
 </ul></li>
-<li><a href="#generating-subsets" id="toc-generating-subsets"><span class="toc-section-number">4</span> Generating subsets</a></li>
-<li><a href="#saving-and-loading-subset-definitions" id="toc-saving-and-loading-subset-definitions"><span class="toc-section-number">5</span> Saving and loading subset
+<li><a href="#generating-subsets" id="toc-generating-subsets"><span class="toc-section-number">3</span> Generating subsets</a>
+<ul>
+<li><a href="#visualizing-subset-membership" id="toc-visualizing-subset-membership"><span class="toc-section-number">3.1</span> Visualizing subset
+membership</a></li>
+</ul></li>
+<li><a href="#saving-and-loading-subset-definitions" id="toc-saving-and-loading-subset-definitions"><span class="toc-section-number">4</span> Saving and loading subset
 definitions</a>
 <ul>
-<li><a href="#saving-to-packagesdirectories" id="toc-saving-to-packagesdirectories"><span class="toc-section-number">5.1</span> Saving to
+<li><a href="#saving-to-packagesdirectories" id="toc-saving-to-packagesdirectories"><span class="toc-section-number">4.1</span> Saving to
 packages/directories</a></li>
-<li><a href="#writing-json-objects" id="toc-writing-json-objects"><span class="toc-section-number">5.2</span> Writing json objects</a></li>
+<li><a href="#writing-json-objects" id="toc-writing-json-objects"><span class="toc-section-number">4.2</span> Writing json objects</a></li>
 </ul></li>
 </ul>
 </div>
 
 <div id="introduction" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Introduction</h1>
-<p>This guide aims to describe the process of cohort subsetting using
-<code>CohortGenerator</code>. The purpose of Cohort subsetting
-operations is to allow the creation of common operations that can be
-applied to generated cohorts in order to subset to different operations
-in a consistent manner.</p>
+<p>This guide describes the process for creating cohort subsets using
+<code>CohortGenerator</code>. OHDSI defines a cohort as <em>a set of
+persons who satisfy one or more criteria for a duration of time</em> and
+the aim with cohort subsets is to apply additional criteria to cohorts
+to define more specific subgroups for use in various analyses. This is
+done by defining a <strong>subset definition</strong> that includes one
+or more <strong>subset operators</strong> to apply to cohorts that are a
+part of your cohort definition set.</p>
+<div id="subset-operators" class="section level2" number="1.1">
+<h2><span class="header-section-number">1.1</span> Subset Operators</h2>
+<p>Cohort generator contains three types of subset operators that are
+described below.</p>
+<p><strong>Demographic subset operator</strong></p>
+<p>The demographic subset operator allows you to subset a cohort by age,
+gender, race or ethnicity.</p>
+<p><strong>Limit subset operator</strong></p>
+<p>The limit subset operator is designed to subset a cohort to limit
+based on some time or ordinal criteria. For example, we might want to
+consider the first event for a person in a cohort. We can use the limit
+subset operator to limit a cohort based on prior observation time,
+cohort duration or even a calendar start/end date.</p>
+<p><strong>Cohort subset operator</strong></p>
+<p>This type of operation allows you to subset a cohort to subjects
+included in one or more other cohorts. As an example, we might be
+interested in new users of metformin who have the indication of Type 2
+diabetes. We can define this population using 2 cohorts: 1) new users of
+metformin and 2) Type 2 diabetes patients. We can then use these 2
+cohorts to define our target population where we describe “new users of
+metformin who’s start date overlaps within a Type 2 diabetes episode.”
+In this way, cohorts become reusable building blocks to create new
+populations using existing cohort definitions.</p>
 </div>
-<div id="subset-definitions" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> Subset definitions</h1>
-<p>Subset definitions are named sets of operations that can be applied
-to a set of one or more cohorts. The current operations that you can
-apply to cohorts are:</p>
-<ul>
-<li>Limit subsets</li>
-<li>Demographic subsets</li>
-<li>Cohort subsetting</li>
-</ul>
-<p>Operations can be sequentially chained within <em>subset
-definitions</em> and all outputs are considered full cohorts that can be
-passed into to other packages as if they are cohorts designed in
-packages</p>
-<div id="demographic-subset-operations" class="section level2" number="2.1">
-<h2><span class="header-section-number">2.1</span> Demographic subset
-operations</h2>
-<p>This subsetting process allows you to capture the age, race/ethnicity
-gender within a cohort as subgroups. For example, “subset cohorts to
-subjects that are male between the ages 1 and 5 years old”.</p>
-</div>
-<div id="subsetting-to-other-cohorts" class="section level2" number="2.2">
-<h2><span class="header-section-number">2.2</span> Subsetting to other
-cohorts</h2>
-<p>This type of operation allows you to subset a cohort to only those
-subjects included in one or more other cohorts</p>
+<div id="subset-definition" class="section level2" number="1.2">
+<h2><span class="header-section-number">1.2</span> Subset
+Definition</h2>
+<p>Subset definitions are named sets of one or more operators (from
+above) that can be applied to a set of one or more cohorts. Operators
+can be sequentially chained within subset definitions and all outputs
+are full cohorts that can be passed into to other analytical tasks.</p>
 </div>
 </div>
-<div id="creating-cohort-subset-definitions" class="section level1" number="3">
-<h1><span class="header-section-number">3</span> Creating cohort subset
+<div id="creating-cohort-subset-definitions" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Creating cohort subset
 definitions</h1>
-<div id="defining-a-subset-definition" class="section level2" number="3.1">
-<h2><span class="header-section-number">3.1</span> Defining a subset
-definition</h2>
-<p>First get a Cohort definition set:</p>
-<pre class="r"><code>cohortDefinitionSet &lt;- getCohortDefinitionSet(
-  settingsFileName = &quot;testdata/name/Cohorts.csv&quot;,
-  jsonFolder = &quot;testdata/name/cohorts&quot;,
-  sqlFolder = &quot;testdata/name/sql/sql_server&quot;,
-  cohortFileNameFormat = &quot;%s&quot;,
-  cohortFileNameValue = c(&quot;cohortName&quot;),
-  packageName = &quot;CohortGenerator&quot;,
-  verbose = FALSE
-)
+<p>This section will provide an overview and some examples of how to
+define a subset definition using the various operators.</p>
+<div id="cohort-definition-set" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Cohort Definition
+Set</h2>
+<p>We will start by loading a cohort definition set with two cohorts for
+this example:</p>
+<pre class="r"><code>jsonFilePath &lt;- system.file(&quot;testdata&quot;, &quot;CohortsToSubset.JSON&quot;, package = &quot;CohortGenerator&quot;)
+cohortDefinitionSet &lt;- jsonlite::fromJSON(jsonFilePath)
+cohortDefinitionSet &lt;- cohortDefinitionSet |&gt;
+  dplyr::filter(cohortId %in% c(1, 2))
 
-cohortDefinitionSet$cohortId &lt;- cohortDefinitionSet$cohortId + 1778210 # Match the cohort Ids taken from Atlas
-cohortIds &lt;- cohortDefinitionSet$cohortId
-cohortDefinitionSet$atlasId &lt;- cohortDefinitionSet$cohortId
-cohortDefinitionSet$logicDescription &lt;- &quot;&quot;</code></pre>
-<p>A definition can include different subset operations - these are
-applied strictly in order:</p>
-<pre class="r"><code># Example, we want to have a HTN cohort that starts any time prior to the index start
-# and the HTN cohort ends any time after the index start
-subsetDef &lt;- createCohortSubsetDefinition(
-  name = &quot;Patients in cohort cohort 1778213 with 365 days prior observation&quot;,
-  definitionId = 1,
-  subsetOperators = list(
-    # here we are saying &#39;first subset to only those patients in cohort 1778213&#39;
-    createCohortSubset(
-      name = &quot;Subset to patients in cohort 1778213&quot;,
-      # Note that this can be set to any id - if the
-      # cohort is empty or doesn&#39;t exist this will not error
-      cohortIds = 1778213,
-      cohortCombinationOperator = &quot;any&quot;,
-      negate = FALSE,
-      startWindow = createSubsetCohortWindow(
-        startDay = -9999,
-        endDay = 0,
-        targetAnchor = &quot;cohortStart&quot;
-      ),
-      endWindow = createSubsetCohortWindow(
-        startDay = 0,
-        endDay = 9999,
-        targetAnchor = &quot;cohortStart&quot;
-      )
+cohortDefinitionSet |&gt;
+  dplyr::select(&quot;cohortId&quot;, &quot;cohortName&quot;) |&gt;
+  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">cohortId</th>
+<th align="left">cohortName</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="left">Celcoxib</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="left">Ibuprofen</td>
+</tr>
+</tbody>
+</table>
+<p>We will use these two cohorts in the subsequent examples.</p>
+</div>
+<div id="subset-operators-1" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Subset operators</h2>
+<p>In this section we will show you can create and use the various
+subset operators to create different subset definitions using the two
+cohorts in our example cohort definition set.</p>
+<p><strong>Demographic Subset Operator</strong></p>
+<p>Here is an example of a demographic subset operator called
+<code>ageCriteria</code> that identifies cohort subjects between the
+ages 20 - 50 years old.</p>
+<pre class="r"><code>ageCriteria &lt;- CohortGenerator::createDemographicSubset(
+  ageMin = 20,
+  ageMax = 50
+)</code></pre>
+<p><strong>Limit Subset Operator</strong></p>
+<p>This is an example of how we can create a limit subset operator
+called <code>limitToLastEver</code> to identify the last cohort event
+that happens between 1 January 2000 and 31 December 2008.</p>
+<pre class="r"><code>limitToLastEver &lt;- CohortGenerator::createLimitSubset(
+  name = &quot;Last event during 1 January 2000 and 31 December 2008&quot;,
+  priorTime = 0,
+  followUpTime = 0,
+  limitTo = &quot;lastEver&quot;,
+  calendarStartDate = as.Date(&quot;2000-01-01&quot;),
+  calendarEndDate = as.Date(&quot;2008-12-31&quot;)
+)</code></pre>
+<p><strong>Cohort Subset Operator</strong></p>
+<p>The following example shows how we can identify patients that have an
+ibuprofen event that starts during the target cohort start and end
+date:</p>
+<pre class="r"><code>ibuprofenSubset &lt;- CohortGenerator::createCohortSubset(
+  name = &quot;ibuprofen exposure&quot;,
+  cohortIds = 2, # Ibuprofen cohort
+  cohortCombinationOperator = &quot;any&quot;, # Look for any Ibuprofen exposure
+  negate = FALSE, # We want to include (not exclude) participants exposed to Ibuprofen,
+  windows = list(
+    CohortGenerator::createSubsetCohortWindow(
+      startDay = 0,
+      endDay = 9999,
+      targetAnchor = &quot;cohortStart&quot;,
+      subsetAnchor = &quot;cohortStart&quot;
     ),
-
-    # Next, subset to only those with 365 days of prior observation
-    createLimitSubset(
-      name = &quot;Observation of at least 365 days prior&quot;,
-      priorTime = 365,
-      followUpTime = 0,
-      limitTo = &quot;all&quot;
+    CohortGenerator::createSubsetCohortWindow(
+      startDay = -9999,
+      endDay = 0,
+      targetAnchor = &quot;cohortEnd&quot;,
+      subsetAnchor = &quot;cohortStart&quot;
     )
   )
 )</code></pre>
+<p>In this subset, we use <strong>cohortId = 2</strong> to identify all
+the subjects exposed to ibuprofen. The <strong>combinationOperation =
+all</strong>, states that persons must exist in all of the
+<code>cohortIds</code>. We define the <code>windows</code> to evaluate
+the start/end date of the subset cohort (ibuprofen) relative to the
+start/end date of the target cohort. The <code>windows</code> is defined
+as:</p>
+<p><strong>The subset cohort start date is on or after the target cohort
+start date</strong></p>
+<p><strong>AND</strong></p>
+<p><strong>the subset cohort start date must end on or before the target
+cohort end date</strong></p>
 </div>
-<div id="reusing-subset-operators-in-multiple-definitions" class="section level2" number="3.2">
-<h2><span class="header-section-number">3.2</span> Reusing subset
-operators in multiple definitions</h2>
-<p>Next we create a similar definition that also subsetOperators the
-specified cohorts to require patients with specific demographic
-criteria. We can do that by copying the subset operations from our first
-definition and modifying them.</p>
-<pre class="r"><code>subsetOperations2 &lt;- subsetDef$subsetOperators
-
-# subset to those between aged 18 an 64
-subsetOperations2[[3]] &lt;-
-  createDemographicSubset(
-    name = &quot;18 - 65&quot;,
-    ageMin = 18,
-    ageMax = 64
-  )
-
-subsetDef2 &lt;- createCohortSubsetDefinition(
-  name = &quot;Patients in cohort 1778213 with 365 days prior obs, aged 18 - 64&quot;,
-  definitionId = 2,
-  subsetOperators = subsetOperations2
+<div id="create-the-subset-definition" class="section level2" number="2.3">
+<h2><span class="header-section-number">2.3</span> Create the subset
+definition</h2>
+<p>Now we can use one or more of the subset operators in a subset
+definition. Here is how to create a subset definition for patients aged
+between 20 to 50:</p>
+<pre class="r"><code>ageRequirementSubset &lt;- CohortGenerator::createCohortSubsetDefinition(
+  name = &quot;Patients 20 to 50 years old &quot;,
+  definitionId = 10,
+  subsetOperators = list(
+    ageCriteria
+  ),
+  subsetCohortNameTemplate = &quot;@baseCohortName - @subsetDefinitionName&quot;
+)</code></pre>
+<p>We can combine multiple subset operators in a single subset
+definition. Here is how to create subset for patients aged 20-50 that
+are exposed to ibuprofen at the start of the cohort and to extract the
+last event from 1 January 2000 and 31 December 2008:</p>
+<pre class="r"><code>ibuprofenWCelcoxib &lt;- CohortGenerator::createCohortSubsetDefinition(
+  name = &quot;Aged 20-50 yrs, last ibuprofen exposure from 2000-2008&quot;,
+  definitionId = 11, # Unique ID for this subset
+  subsetOperators = list(
+    ageCriteria,
+    ibuprofenSubset,
+    limitToLastEver
+  ),
+  subsetCohortNameTemplate = &quot;@baseCohortName - @subsetDefinitionName&quot;
 )</code></pre>
 </div>
-<div id="applying-subset-definitions-to-a-cohort-definition-set" class="section level2" number="3.3">
-<h2><span class="header-section-number">3.3</span> Applying subset
-definitions to a cohort definition set</h2>
-<p>Next we need to add the subset definitions to the base cohort set.
-This will automatically add identifiers and OHDSI SQL for the subset
-cohorts as well as storing references for saving definition sets for
-re-use.</p>
+<div id="adding-subsets-to-cohort-definition-set" class="section level2" number="2.4">
+<h2><span class="header-section-number">2.4</span> Adding subsets to
+Cohort Definition Set</h2>
+<p>Cohort subset definitions must be added to a cohort definition set to
+generate these subsets using CohortGenerator. To do this, we use the
+<code>addCohortSubsetDefinition</code> function to add the subset
+definition to the cohort definition set. This function allows us to
+specify the <code>targetCohortIds</code> that should receive the subset
+definition and operators. Here we will apply the subset definitions to
+the target cohort celecoxib (cohortId == 1).</p>
 <pre class="r"><code>cohortDefinitionSet &lt;- cohortDefinitionSet |&gt;
-  addCohortSubsetDefinition(subsetDef)
-
-knitr::kable(cohortDefinitionSet[, names(cohortDefinitionSet)[which(!names(cohortDefinitionSet) %in% c(&quot;json&quot;, &quot;sql&quot;))]])</code></pre>
+  CohortGenerator::addCohortSubsetDefinition(ageRequirementSubset, targetCohortIds = c(1)) |&gt;
+  CohortGenerator::addCohortSubsetDefinition(ibuprofenWCelcoxib, targetCohortIds = c(1))
+cohortDefinitionSet |&gt;
+  dplyr::select(&quot;cohortId&quot;, &quot;cohortName&quot;) |&gt;
+  knitr::kable()</code></pre>
 <table>
 <colgroup>
-<col width="4%" />
-<col width="68%" />
-<col width="3%" />
-<col width="7%" />
-<col width="5%" />
-<col width="3%" />
-<col width="7%" />
+<col width="12%" />
+<col width="88%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th align="right">cohortId</th>
 <th align="left">cohortName</th>
-<th align="right">atlasId</th>
-<th align="left">logicDescription</th>
-<th align="right">subsetParent</th>
-<th align="left">isSubset</th>
-<th align="right">subsetDefinitionId</th>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td align="right">1778211</td>
-<td align="left">celecoxib</td>
-<td align="right">1778211</td>
-<td align="left"></td>
-<td align="right">1778211</td>
-<td align="left">FALSE</td>
-<td align="right">NA</td>
-</tr>
-<tr>
-<td align="right">1778212</td>
-<td align="left">celecoxibAge40</td>
-<td align="right">1778212</td>
-<td align="left"></td>
-<td align="right">1778212</td>
-<td align="left">FALSE</td>
-<td align="right">NA</td>
-</tr>
-<tr>
-<td align="right">1778213</td>
-<td align="left">celecoxibAge40Male</td>
-<td align="right">1778213</td>
-<td align="left"></td>
-<td align="right">1778213</td>
-<td align="left">FALSE</td>
-<td align="right">NA</td>
-</tr>
-<tr>
-<td align="right">1778214</td>
-<td align="left">celecoxibCensored</td>
-<td align="right">1778214</td>
-<td align="left"></td>
-<td align="right">1778214</td>
-<td align="left">FALSE</td>
-<td align="right">NA</td>
-</tr>
-<tr>
-<td align="right">1778211001</td>
-<td align="left">celecoxib - Patients in cohort cohort 1778213 with 365
-days prior observation Subset to patients in cohort 1778213, Observation
-of at least 365 days prior</td>
-<td align="right">NA</td>
-<td align="left">NA</td>
-<td align="right">1778211</td>
-<td align="left">TRUE</td>
+<tr class="odd">
 <td align="right">1</td>
+<td align="left">Celcoxib</td>
 </tr>
-<tr>
-<td align="right">1778212001</td>
-<td align="left">celecoxibAge40 - Patients in cohort cohort 1778213 with
-365 days prior observation Subset to patients in cohort 1778213,
-Observation of at least 365 days prior</td>
-<td align="right">NA</td>
-<td align="left">NA</td>
-<td align="right">1778212</td>
-<td align="left">TRUE</td>
-<td align="right">1</td>
-</tr>
-<tr>
-<td align="right">1778213001</td>
-<td align="left">celecoxibAge40Male - Patients in cohort cohort 1778213
-with 365 days prior observation Subset to patients in cohort 1778213,
-Observation of at least 365 days prior</td>
-<td align="right">NA</td>
-<td align="left">NA</td>
-<td align="right">1778213</td>
-<td align="left">TRUE</td>
-<td align="right">1</td>
-</tr>
-<tr>
-<td align="right">1778214001</td>
-<td align="left">celecoxibCensored - Patients in cohort cohort 1778213
-with 365 days prior observation Subset to patients in cohort 1778213,
-Observation of at least 365 days prior</td>
-<td align="right">NA</td>
-<td align="left">NA</td>
-<td align="right">1778214</td>
-<td align="left">TRUE</td>
-<td align="right">1</td>
-</tr>
-</tbody>
-</table>
-<p>We can also apply a subset definition to only a limited number of
-target cohorts as follows</p>
-<pre class="r"><code>cohortDefinitionSet &lt;- cohortDefinitionSet |&gt;
-  addCohortSubsetDefinition(subsetDef2, targetCohortIds = 1778212)
-
-knitr::kable(cohortDefinitionSet[, names(cohortDefinitionSet)[which(!names(cohortDefinitionSet) %in% c(&quot;json&quot;, &quot;sql&quot;))]])</code></pre>
-<table>
-<colgroup>
-<col width="4%" />
-<col width="68%" />
-<col width="3%" />
-<col width="6%" />
-<col width="5%" />
-<col width="3%" />
-<col width="7%" />
-</colgroup>
-<thead>
-<tr>
-<th align="right">cohortId</th>
-<th align="left">cohortName</th>
-<th align="right">atlasId</th>
-<th align="left">logicDescription</th>
-<th align="right">subsetParent</th>
-<th align="left">isSubset</th>
-<th align="right">subsetDefinitionId</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="right">1778211</td>
-<td align="left">celecoxib</td>
-<td align="right">1778211</td>
-<td align="left"></td>
-<td align="right">1778211</td>
-<td align="left">FALSE</td>
-<td align="right">NA</td>
-</tr>
-<tr>
-<td align="right">1778212</td>
-<td align="left">celecoxibAge40</td>
-<td align="right">1778212</td>
-<td align="left"></td>
-<td align="right">1778212</td>
-<td align="left">FALSE</td>
-<td align="right">NA</td>
-</tr>
-<tr>
-<td align="right">1778213</td>
-<td align="left">celecoxibAge40Male</td>
-<td align="right">1778213</td>
-<td align="left"></td>
-<td align="right">1778213</td>
-<td align="left">FALSE</td>
-<td align="right">NA</td>
-</tr>
-<tr>
-<td align="right">1778214</td>
-<td align="left">celecoxibCensored</td>
-<td align="right">1778214</td>
-<td align="left"></td>
-<td align="right">1778214</td>
-<td align="left">FALSE</td>
-<td align="right">NA</td>
-</tr>
-<tr>
-<td align="right">1778211001</td>
-<td align="left">celecoxib - Patients in cohort cohort 1778213 with 365
-days prior observation Subset to patients in cohort 1778213, Observation
-of at least 365 days prior</td>
-<td align="right">NA</td>
-<td align="left">NA</td>
-<td align="right">1778211</td>
-<td align="left">TRUE</td>
-<td align="right">1</td>
-</tr>
-<tr>
-<td align="right">1778212001</td>
-<td align="left">celecoxibAge40 - Patients in cohort cohort 1778213 with
-365 days prior observation Subset to patients in cohort 1778213,
-Observation of at least 365 days prior</td>
-<td align="right">NA</td>
-<td align="left">NA</td>
-<td align="right">1778212</td>
-<td align="left">TRUE</td>
-<td align="right">1</td>
-</tr>
-<tr>
-<td align="right">1778213001</td>
-<td align="left">celecoxibAge40Male - Patients in cohort cohort 1778213
-with 365 days prior observation Subset to patients in cohort 1778213,
-Observation of at least 365 days prior</td>
-<td align="right">NA</td>
-<td align="left">NA</td>
-<td align="right">1778213</td>
-<td align="left">TRUE</td>
-<td align="right">1</td>
-</tr>
-<tr>
-<td align="right">1778214001</td>
-<td align="left">celecoxibCensored - Patients in cohort cohort 1778213
-with 365 days prior observation Subset to patients in cohort 1778213,
-Observation of at least 365 days prior</td>
-<td align="right">NA</td>
-<td align="left">NA</td>
-<td align="right">1778214</td>
-<td align="left">TRUE</td>
-<td align="right">1</td>
-</tr>
-<tr>
-<td align="right">1778212002</td>
-<td align="left">celecoxibAge40 - Patients in cohort 1778213 with 365
-days prior obs, aged 18 - 64 Subset to patients in cohort 1778213,
-Observation of at least 365 days prior, 18 - 65</td>
-<td align="right">NA</td>
-<td align="left">NA</td>
-<td align="right">1778212</td>
-<td align="left">TRUE</td>
+<tr class="even">
 <td align="right">2</td>
+<td align="left">Ibuprofen</td>
+</tr>
+<tr class="odd">
+<td align="right">1010</td>
+<td align="left">Celcoxib - Patients 20 to 50 years old</td>
+</tr>
+<tr class="even">
+<td align="right">1011</td>
+<td align="left">Celcoxib - Aged 20-50 yrs, last ibuprofen exposure from
+2000-2008</td>
 </tr>
 </tbody>
 </table>
-<p>The <code>cohortDefinitionSet</code> data.frame now has some
-additional columns:</p>
-<pre><code>subsetParent, isSubset, subsetDefinitionId</code></pre>
-<p><code>subsetParent</code> indicates the parent cohort. For standard
-cohorts this will be their own ID. For out newly defined subsets, this
-will be the base cohort.</p>
-<p><code>subsetDefinitionId</code> displays the id of the subset applied
-to the cohort.</p>
-<p>In addition, the name of the cohort displayed in this table is
-automatically generated from the base cohort name, the subset name and
-the names defined for the subset operations applied in the subset
-definition. As the number of resulting subsets can become very large, it
-is crucial to choose human interpretable naming conventions. For
-example, see the name of our first cohort and the resulting name of a
-child subset:</p>
-<pre class="r"><code>writeLines(c(
-  paste(&quot;Cohort Id:&quot;, cohortDefinitionSet$cohortId[1]),
-  paste(&quot;Name&quot;, cohortDefinitionSet$cohortName[1])
-))</code></pre>
-<pre><code>#&gt; Cohort Id: 1778211
-#&gt; Name celecoxib</code></pre>
-<pre class="r"><code>writeLines(c(
-  paste(&quot;Cohort Id:&quot;, cohortDefinitionSet$cohortId[4]),
-  paste(&quot;Subset Parent Id:&quot;, cohortDefinitionSet$subsetParent[4]),
-  paste(&quot;Name&quot;, cohortDefinitionSet$cohortName[4])
-))</code></pre>
-<pre><code>#&gt; Cohort Id: 1778214
-#&gt; Subset Parent Id: 1778214
-#&gt; Name celecoxibCensored</code></pre>
-<p>Note that when adding a subset definition to a cohort definition set,
-the target cohort ids e.g (1778211, 1778212) must exist in the
-<code>cohortDefinitionSet</code> and the output ids
-(<code>1778211002</code>, <code>1778212003</code>) must be unique. As
-with all cohorts, any cohorts with these ids will be deleted prior to
-execution to prevent collisions. Note that the default expression for
-output cohort ids is <code>targetId * 1000 + definitionId</code> this
-may cause collisions that will cause
-<code>addCohortSubsetDefinition</code> to error. This can be modified by
-changing the <code>identifierExpression</code> parameter to
-<code>createSubsetDefinition</code>. This expression should be defined
-to guarantee uniqueness or adding the definition to a cohort definition
-set will fail.</p>
 </div>
 </div>
-<div id="generating-subsets" class="section level1" number="4">
-<h1><span class="header-section-number">4</span> Generating subsets</h1>
-<p>Executing CohortGenerator, we can now include the subset operations
-when our cohorts are generated:</p>
-<pre class="r"><code>connectionDetails &lt;- Eunomia::getEunomiaConnectionDetails()
-createCohortTables(
-  connectionDetails = connectionDetails,
-  cohortDatabaseSchema = &quot;main&quot;,
-  cohortTableNames = getCohortTableNames(&quot;my_cohort&quot;)
+<div id="generating-subsets" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Generating subsets</h1>
+<p>Next, we’ll use some test data included in the CohortGenerator
+package is to demonstrate how generate subsets. We will begin by
+creating an empty OMOP data model and populating it with person and drug
+exposure entries. For reference, the script used to generate the test
+data in <code>extras/PackageMaintenance.R</code>.</p>
+<pre class="r"><code>databaseFile &lt;- tempfile(fileext = &quot;.duckdb&quot;)
+duckdbConnectionDetails &lt;- DatabaseConnector::createConnectionDetails(
+  dbms = &quot;duckdb&quot;,
+  server = databaseFile
 )
-# ### As subsets are a big side effect we need to be clear what was generated and have good naming conventions
-generatedCohorts &lt;- generateCohortSet(
-  connectionDetails = connectionDetails,
+resultsSchema &lt;- &quot;main&quot;
+connection &lt;- DatabaseConnector::connect(duckdbConnectionDetails)
+
+DatabaseConnector::insertTable(
+  connection = connection,
+  databaseSchema = resultsSchema,
+  tableName = &quot;person&quot;,
+  data = omopCdmPerson
+)
+# Insert updated data into the &#39;drug_exposure&#39; table
+DatabaseConnector::insertTable(
+  connection = connection,
+  databaseSchema = resultsSchema,
+  tableName = &quot;drug_exposure&quot;,
+  data = omopCdmDrugExposure
+)</code></pre>
+<p>We can now use this sample data to generate the subsets:</p>
+<pre class="r"><code>cohortTableNames &lt;- CohortGenerator::getCohortTableNames()
+CohortGenerator::createCohortTables(
+  connection = connection,
+  cohortDatabaseSchema = &quot;main&quot;,
+  cohortTableNames = cohortTableNames
+)
+
+
+### As subsets are a big side effect we need to be clear what was generated and have good naming conventions
+CohortGenerator::generateCohortSet(
+  connection = connection,
   cdmDatabaseSchema = &quot;main&quot;,
   cohortDatabaseSchema = &quot;main&quot;,
-  cohortTableNames = getCohortTableNames(&quot;my_cohort&quot;),
-  cohortDefinitionSet = cohortDefinitionSet,
-  incremental = TRUE,
-  incrementalFolder = file.path(someFolder, &quot;RecordKeeping&quot;)
+  cohortTableNames = CohortGenerator::getCohortTableNames(),
+  cohortDefinitionSet = cohortDefinitionSet
 )</code></pre>
 <p>Cohort subset definitions can be run incrementally. In fact, if the
 base cohort definition changes for any reason, any subsets will
 automatically be re-executed when calling
 <code>generateCohortSet</code>.</p>
+<div id="visualizing-subset-membership" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> Visualizing subset
+membership</h2>
+<p>In the graph below we show the 12 subjects who are in our sample data
+set. Each subject’s graph is labeled with their subject ID, gender and
+their age at index for the celecoxib exposure. The y-axis describes the
+eras of time where a subject is a member of that cohort. The x-axis
+represents the observation period for each subject.</p>
+<p><img role="img" src="data:image/png;base64,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" width="960" /></p>
+<p>A subject may have 0 or more ibuprofen (cohort ID = 2) exposures.
+When a subject is a member of one of the two subsets in our example,
+they will have an era for the cohort ID on that row. For example,
+subject 6 qualifies for cohort ID 1010 which identifies patients aged
+20-50 years at the start of the celecoxib exposure. Similarly, subject
+ID 2 qualifies for all subsets since they are aged 22 and also have an
+ibuprofen exposure during their expsoure to celecoxib.</p>
 </div>
-<div id="saving-and-loading-subset-definitions" class="section level1" number="5">
-<h1><span class="header-section-number">5</span> Saving and loading
+</div>
+<div id="saving-and-loading-subset-definitions" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Saving and loading
 subset definitions</h1>
-<div id="saving-to-packagesdirectories" class="section level2" number="5.1">
-<h2><span class="header-section-number">5.1</span> Saving to
+<div id="saving-to-packagesdirectories" class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> Saving to
 packages/directories</h2>
 <p>Saving applied subsets can automatically be added to a project using
 <code>saveCohortDefinitionSet</code></p>
@@ -828,8 +695,8 @@ packages/directories</h2>
 <p>Any subset definitions should automatically be loaded and applied to
 the cohort definition set.</p>
 </div>
-<div id="writing-json-objects" class="section level2" number="5.2">
-<h2><span class="header-section-number">5.2</span> Writing json
+<div id="writing-json-objects" class="section level2" number="4.2">
+<h2><span class="header-section-number">4.2</span> Writing json
 objects</h2>
 <p>Subset definitions can be converted to JSON objects as follows:</p>
 <pre class="r"><code>jsonDefinition &lt;- subsetDef$toJSON()</code></pre>
@@ -837,7 +704,6 @@ objects</h2>
 <code>ParallelLogger</code> for consistency.</p>
 <pre class="r"><code># Save to a file
 ParallelLogger::saveSettingsToJson(subsetDef$toList(), &quot;subsetDefinition1.json&quot;)</code></pre>
-<pre class="r"><code>options(old)</code></pre>
 </div>
 </div>
 
