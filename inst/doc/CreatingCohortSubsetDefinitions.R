@@ -202,21 +202,21 @@ ggplot(cohort_data, aes(
   facet_wrap(~facet_label) # Correct facet wrapping
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  saveCohortDefinitionSet(cohortDefinitionSet,
-#    subsetJsonFolder = "<path_to_my_subset_definition>"
-#  )
+# saveCohortDefinitionSet(cohortDefinitionSet,
+#   subsetJsonFolder = "<path_to_my_subset_definition>"
+# )
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  cohortDefinitionSet <- getCohortDefinitionSet(
-#    subsetJsonFolder = "<path_to_my_subset_definition>"
-#  )
+# cohortDefinitionSet <- getCohortDefinitionSet(
+#   subsetJsonFolder = "<path_to_my_subset_definition>"
+# )
 
 ## ----results='hide', eval=FALSE-----------------------------------------------
-#  jsonDefinition <- subsetDef$toJSON()
+# jsonDefinition <- subsetDef$toJSON()
 
 ## ----results='hide', eval=FALSE-----------------------------------------------
-#  # Save to a file
-#  ParallelLogger::saveSettingsToJson(subsetDef$toList(), "subsetDefinition1.json")
+# # Save to a file
+# ParallelLogger::saveSettingsToJson(subsetDef$toList(), "subsetDefinition1.json")
 
 ## ----echo=FALSE, results='hide'-----------------------------------------------
 options(old)
