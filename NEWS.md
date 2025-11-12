@@ -1,3 +1,22 @@
+CohortGenerator 1.0.0
+=====================
+
+New Features
+
+- SQL cohorts as first class citizens - SQL templates for non-standard cohorts or large, bulk operations (#133, #247)
+- Remove file-based incremental operations. Creation of database cohort_checksum tables that enables verification of generated cohorts and incremental execution in distributed environments (#206, #131, #254)
+- Abbreviated logging for cohorts already generated (#113)
+- Added `maximumChortDuration` to the LimitSubset operator (#240)
+- Added "recipe" functions for creating indication and restriction subsets (#209)
+- Deprecate subset operator function names and add `operator` suffix (#233)
+- Removes default 'print friendly' long text of subgroup names (#135, #231)
+- Add pretty print to subset definitions that includes SQL and logic definitions (#218)
+
+Bug Fixes
+
+- Limit subset operator produces broken SQL if R `date` of length 0 is passed instead of NULL (#252)
+- Remove warning around finalize (#242)
+
 CohortGenerator 0.12.2
 ======================
 
@@ -14,7 +33,7 @@ CohortGenerator 0.12.0
 
 New Features
 
-- Backwards compatable extension to CohortSubsetOperators and cohortSubsetWindows to allow windowing to be logic of any
+- Backwards compatible extension to CohortSubsetOperators and cohortSubsetWindows to allow windowing to be logic of any
 length
 - Include observation table when creating negative control cohorts (#198)
 - Improvements to cohort subset documentation (#199)

@@ -20,13 +20,13 @@ cohortDefinitionSet |>
   knitr::kable()
 
 ## -----------------------------------------------------------------------------
-ageCriteria <- CohortGenerator::createDemographicSubset(
+ageCriteria <- CohortGenerator::createDemographicSubsetOperator(
   ageMin = 20,
   ageMax = 50
 )
 
 ## -----------------------------------------------------------------------------
-limitToLastEver <- CohortGenerator::createLimitSubset(
+limitToLastEver <- CohortGenerator::createLimitSubsetOperator(
   name = "Last event during 1 January 2000 and 31 December 2008",
   priorTime = 0,
   followUpTime = 0,
@@ -36,7 +36,7 @@ limitToLastEver <- CohortGenerator::createLimitSubset(
 )
 
 ## -----------------------------------------------------------------------------
-ibuprofenSubset <- CohortGenerator::createCohortSubset(
+ibuprofenSubset <- CohortGenerator::createCohortSubsetOperator(
   name = "ibuprofen exposure",
   cohortIds = 2, # Ibuprofen cohort
   cohortCombinationOperator = "any", # Look for any Ibuprofen exposure

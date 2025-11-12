@@ -64,11 +64,15 @@
                           targetTable,
                           outputCohortId,
                           outputTable,
+                          checksumTable,
                           cohortDatabaseSchema,
                           outputDatabaseSchema,
                           sampleTable,
                           seed,
-                          tempEmulationSchema) {
+                          tempEmulationSchema,
+                          checksum,
+                          incremental) {
+  startTime <- lubridate::now()
   randSampleTableName <- paste0("#SAMPLE_TABLE_", seed)
   DatabaseConnector::insertTable(
     connection = connection,
@@ -80,9 +84,8 @@
   )
 
   execSql <- SqlRender::readSql(system.file("sql", "sql_server", "sampling", "RandomSample.sql", package = "CohortGenerator"))
-  DatabaseConnector::renderTranslateExecuteSql(connection,
+  execSql <- SqlRender::render(
     execSql,
-    tempEmulationSchema = tempEmulationSchema,
     random_sample_table = randSampleTableName,
     target_cohort_id = targetCohortId,
     output_cohort_id = outputCohortId,
@@ -91,6 +94,20 @@
     output_table = outputTable,
     target_table = targetTable
   )
+  execSql <- SqlRender::translate(execSql,
+    targetDialect = DatabaseConnector::dbms(connection)
+  )
+
+  .runCohortSql(
+    connection = connection,
+    sql = execSql,
+    startTime = startTime,
+    resultsDatabaseSchema = cohortDatabaseSchema,
+    cohortChecksumTable = checksumTable,
+    incremental = incremental,
+    cohortId = outputCohortId,
+    checksum = checksum
+  )$generationStatus
 }
 
 
@@ -184,15 +201,8 @@ sampleCohortDefinitionSet <- function(cohortDefinitionSet,
     stop("You must provide either a database connection or the connection details.")
   }
 
-  if (incremental) {
-    if (is.null(incrementalFolder)) {
-      stop("Must specify incrementalFolder when incremental = TRUE")
-    }
-    if (!file.exists(incrementalFolder)) {
-      dir.create(incrementalFolder, recursive = TRUE)
-    }
-
-    recordKeepingFile <- file.path(incrementalFolder, "GeneratedCohortSamples.csv")
+  if (!is.null(incrementalFolder)) {
+    lifecycle::deprecate_warn("1.1.0", "incrementalFolder parameter is no longer used and will be removed in a future version")
   }
   # check uniqueness of output ids
   .checkUniqueOutputIds(cohortDefinitionSet$cohortIds, seed, identifierExpression, cohortTableNames)
@@ -204,6 +214,12 @@ sampleCohortDefinitionSet <- function(cohortDefinitionSet,
   }
 
   .checkCohortTables(connection, cohortDatabaseSchema, cohortTableNames)
+  computedChecksums <- getLastGeneratedCohortChecksums(
+    connection = connection,
+    cohortDatabaseSchema = cohortDatabaseSchema,
+    cohortTableNames = cohortTableNames
+  )
+
   sampledCohorts <-
     base::Map(function(seed, targetCohortId) {
       sampledCohortDefinition <- cohortDefinitionSet %>%
@@ -240,12 +256,16 @@ sampleCohortDefinitionSet <- function(cohortDefinitionSet,
         )
       }
 
-      if (incremental && !isTaskRequired(
-        cohortId = outputCohortId,
-        seed = seed,
-        checksum = computeChecksum(paste0(sampledCohortDefinition$sql, n, seed, outputCohortId)),
-        recordKeepingFile = recordKeepingFile
-      )) {
+      sampleChecksum <- computeChecksum(paste0(sampledCohortDefinition$sql, n, seed, outputCohortId))
+      cohortComputed <- computedChecksums |>
+        dplyr::filter(
+          .data$checksum == sampleChecksum,
+          .data$cohortDefinitionId == outputCohortId
+        ) |>
+        dplyr::count() |>
+        dplyr::pull() > 0
+
+      if (incremental && cohortComputed) {
         sampledCohortDefinition$status <- "skipped"
         return(sampledCohortDefinition)
       }
@@ -265,33 +285,27 @@ sampleCohortDefinitionSet <- function(cohortDefinitionSet,
         rlang::inform(paste0("No entires found for ", targetCohortId, " was it generated?"))
         return(sampledCohortDefinition)
       }
+
       # Called only for side effects
-      .sampleCohort(
+      sampledCohortDefinition$status <- .sampleCohort(
         connection = connection,
         targetCohortId = targetCohortId,
         targetTable = cohortTableNames$cohortTable,
         outputCohortId = outputCohortId,
         outputTable = cohortTableNames$cohortSampleTable,
+        checksumTable = cohortTableNames$cohortChecksumTable,
         cohortDatabaseSchema = cohortDatabaseSchema,
         outputDatabaseSchema = outputDatabaseSchema,
         sampleTable = sampleTable,
         seed = seed + targetCohortId, # Seed is unique to each target cohort
-        tempEmulationSchema = tempEmulationSchema
+        tempEmulationSchema = tempEmulationSchema,
+        checksum = sampleChecksum,
+        incremental = incremental
       )
 
-      sampledCohortDefinition$status <- "generated"
-      if (incremental) {
-        recordTasksDone(
-          cohortId = sampledCohortDefinition$cohortId,
-          seed = seed,
-          checksum = computeChecksum(paste0(sampledCohortDefinition$sql, n, seed, outputCohortId)),
-          recordKeepingFile = recordKeepingFile
-        )
-      }
       return(sampledCohortDefinition)
     }, seed, cohortIds) %>%
     dplyr::bind_rows()
-
 
 
   attr(sampledCohorts, "isSampledCohortDefinition") <- TRUE

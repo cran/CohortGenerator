@@ -84,7 +84,7 @@ In this section we will show you can create and use the various subset operators
 Here is an example of a demographic subset operator called `ageCriteria` that identifies cohort subjects between the ages 20 - 50 years old.
 
 ```{r}
-ageCriteria <- CohortGenerator::createDemographicSubset(
+ageCriteria <- CohortGenerator::createDemographicSubsetOperator(
   ageMin = 20,
   ageMax = 50
 )
@@ -95,7 +95,7 @@ ageCriteria <- CohortGenerator::createDemographicSubset(
 This is an example of how we can create a limit subset operator called `limitToLastEver` to identify the last cohort event that happens between 1 January 2000 and 31 December 2008.
 
 ```{r}
-limitToLastEver <- CohortGenerator::createLimitSubset(
+limitToLastEver <- CohortGenerator::createLimitSubsetOperator(
   name = "Last event during 1 January 2000 and 31 December 2008",
   priorTime = 0,
   followUpTime = 0,
@@ -110,7 +110,7 @@ limitToLastEver <- CohortGenerator::createLimitSubset(
 The following example shows how we can identify patients that have an ibuprofen event that starts during the target cohort start and end date:
 
 ```{r}
-ibuprofenSubset <- CohortGenerator::createCohortSubset(
+ibuprofenSubset <- CohortGenerator::createCohortSubsetOperator(
   name = "ibuprofen exposure",
   cohortIds = 2, # Ibuprofen cohort
   cohortCombinationOperator = "any", # Look for any Ibuprofen exposure
@@ -239,6 +239,9 @@ Cohort subset definitions can be run incrementally. In fact, if the base cohort 
 In the graph below we show the 12 subjects who are in our sample data set. Each subject's graph is labeled with their subject ID, gender and their age at index for the celecoxib exposure. The y-axis describes the eras of time where a subject is a member of that cohort. The x-axis represents the observation period for each subject. 
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, error = FALSE, results = 'hide', fig.width = 10, fig.height = 6}
+#| fig.alt: >
+#|   Cohort subset membership by subject
+
 library(ggplot2)
 cohorts <- DatabaseConnector::querySql(
   connection = connection,

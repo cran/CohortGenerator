@@ -35,8 +35,7 @@ library(CohortGenerator)
 #   cdmDatabaseSchema = "main",
 #   cohortDatabaseSchema = "main",
 #   cohortTableNames = cohortTableNames,
-#   incremental = TRUE,
-#   incrementalFolder = recordKeepingFolder
+#   incremental = TRUE
 # )
 
 ## ----eval=F-------------------------------------------------------------------
@@ -47,8 +46,7 @@ library(CohortGenerator)
 #   seed = 64374, # OHDSI
 #   cohortDatabaseSchema = "main",
 #   cohortTableNames = cohortTableNames,
-#   incremental = TRUE,
-#   incrementalFolder = recordKeepingFolder
+#   incremental = TRUE
 # )
 
 ## ----eval=F-------------------------------------------------------------------
@@ -60,8 +58,7 @@ library(CohortGenerator)
 #   seed = 1:800 * 64374, # OHDSI
 #   cohortDatabaseSchema = "main",
 #   cohortTableNames = cohortTableNames,
-#   incremental = TRUE,
-#   incrementalFolder = recordKeepingFolder
+#   incremental = TRUE
 # )
 
 ## ----results='hide'-----------------------------------------------------------

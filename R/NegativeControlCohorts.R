@@ -51,9 +51,13 @@ createEmptyNegativeControlOutcomeCohortSet <- function(verbose = FALSE) {
 #'
 #' @template CdmDatabaseSchema
 #'
+#' @template CohortTableNames
+
 #' @template TempEmulationSchema
 #'
 #' @template CohortDatabaseSchema
+#'
+#' @template CohortTableNames
 #'
 #' @param cohortTable                  Name of the cohort table.
 #'
@@ -68,7 +72,7 @@ createEmptyNegativeControlOutcomeCohortSet <- function(verbose = FALSE) {
 #' @param incremental             Create only cohorts that haven't been created before?
 #'
 #' @param incrementalFolder       If \code{incremental = TRUE}, specify a folder where records are
-#'                                kept of which definition has been executed.
+#'                                kept of which definition has been executed. (deprecated)
 #'
 #' @return
 #' Invisibly returns an empty negative control outcome cohort set data.frame
@@ -79,7 +83,8 @@ generateNegativeControlOutcomeCohorts <- function(connectionDetails = NULL,
                                                   cdmDatabaseSchema,
                                                   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
                                                   cohortDatabaseSchema = cdmDatabaseSchema,
-                                                  cohortTable = getCohortTableNames()$cohortTable,
+                                                  cohortTableNames = getCohortTableNames(),
+                                                  cohortTable = cohortTableNames$cohortTable,
                                                   negativeControlOutcomeCohortSet,
                                                   occurrenceType = "all",
                                                   incremental = FALSE,
@@ -108,25 +113,26 @@ generateNegativeControlOutcomeCohorts <- function(connectionDetails = NULL,
     stop("Cannot generate! Duplicate cohort IDs found in your negativeControlOutcomeCohortSet: ", paste(duplicatedCohortIds, sep = ","), ". Please fix your negativeControlOutcomeCohortSet and try again.")
   }
 
+  checksum <- computeChecksum(jsonlite::toJSON(
+    list(
+      negativeControlOutcomeCohortSet = negativeControlOutcomeCohortSet,
+      occurrenceType = occurrenceType,
+      detectOnDescendants = detectOnDescendants
+    )
+  ))[[1]]
+
   if (incremental) {
-    if (is.null(incrementalFolder)) {
-      stop("Must specify incrementalFolder when incremental = TRUE")
-    }
-    if (!file.exists(incrementalFolder)) {
-      dir.create(incrementalFolder, recursive = TRUE)
+    if (!is.null(incrementalFolder)) {
+      lifecycle::deprecate_warn("1.1.0", "incrementalFolder parameter is no longer used and will be removed in a future version")
     }
 
-    recordKeepingFile <- file.path(incrementalFolder, "GeneratedNegativeControls.csv")
-    checksum <- computeChecksum(jsonlite::toJSON(
-      list(
-        negativeControlOutcomeCohortSet = negativeControlOutcomeCohortSet,
-        occurrenceType = occurrenceType,
-        detectOnDescendants = detectOnDescendants
-      )
-    ))[[1]]
-
-    if (!isTaskRequired(paramHash = checksum, checksum = checksum, recordKeepingFile = recordKeepingFile)) {
-      writeLines("Negative control set skipped")
+    computedChecksums <- getLastGeneratedCohortChecksums(
+      connection = connection,
+      cohortDatabaseSchema = cohortDatabaseSchema,
+      cohortTableNames = cohortTableNames
+    )
+    if (checksum %in% computedChecksums$checksum) {
+      ParallelLogger::logInfo("Negative control set generation skipped")
       return(invisible("SKIPPED"))
     }
   }
@@ -148,6 +154,16 @@ generateNegativeControlOutcomeCohorts <- function(connectionDetails = NULL,
 
   rlang::inform("Generating negative control outcome cohorts")
 
+  recordNcCohorts(
+    connection = connection,
+    cohortDatabaseSchema = cohortDatabaseSchema,
+    cohortChecksumTable = cohortTableNames$cohortChecksumTable,
+    negativeControlOutcomeCohortSet = negativeControlOutcomeCohortSet,
+    checksum = checksum,
+    start = as.numeric(start) * 1000
+  )
+
+
   sql <- createNegativeControlOutcomesQuery(
     connection = connection,
     cdmDatabaseSchema = cdmDatabaseSchema,
@@ -163,16 +179,20 @@ generateNegativeControlOutcomeCohorts <- function(connectionDetails = NULL,
     connection = connection,
     sql = sql
   )
+
+  recordNcCohorts(
+    connection = connection,
+    cohortDatabaseSchema = cohortDatabaseSchema,
+    cohortChecksumTable = cohortTableNames$cohortChecksumTable,
+    negativeControlOutcomeCohortSet = negativeControlOutcomeCohortSet,
+    checksum = checksum,
+    start = as.numeric(start) * 1000,
+    end = as.numeric(Sys.time()) * 1000
+  )
+
+
   delta <- Sys.time() - start
   writeLines(paste("Generating negative control outcomes set took", round(delta, 2), attr(delta, "units")))
-
-  if (incremental) {
-    recordTasksDone(
-      paramHash = checksum,
-      checksum = checksum,
-      recordKeepingFile = recordKeepingFile
-    )
-  }
 
   invisible("FINISHED")
 }
@@ -225,4 +245,40 @@ createNegativeControlOutcomesQuery <- function(connection,
     targetDialect = connection@dbms,
     tempEmulationSchema = tempEmulationSchema
   )
+}
+
+# This process could be simplified but the current checksum table uses a cohort id - either a second checksum table or
+# allowing this to be a singular id for all cohorts would be a speed up if this becomes a performance issue
+recordNcCohorts <- function(connection,
+                            cohortDatabaseSchema,
+                            cohortChecksumTable,
+                            negativeControlOutcomeCohortSet,
+                            checksum,
+                            start,
+                            end = "NULL") {
+  # Use delete instead of update to improve performance on MPP platforms
+  endSql <- "
+  DELETE FROM @results_database_schema.@cohort_checksum_table
+  WHERE cohort_definition_id = @target_cohort_id AND checksum = '@checksum';
+
+  INSERT INTO @results_database_schema.@cohort_checksum_table (cohort_definition_id, checksum, start_time, end_time)
+  VALUES (@target_cohort_id, '@checksum', @start_time, @end_time);
+
+  "
+
+  sql <- ""
+  for (i in 1:nrow(negativeControlOutcomeCohortSet)) {
+    sql <- paste(sql, SqlRender::render(endSql,
+      checksum = checksum,
+      start_time = start,
+      target_cohort_id = negativeControlOutcomeCohortSet$cohortId[i],
+      end_time = end,
+      results_database_schema = cohortDatabaseSchema,
+      cohort_checksum_table = cohortChecksumTable,
+      warnOnMissingParameters = FALSE
+    ))
+  }
+
+
+  DatabaseConnector::renderTranslateExecuteSql(connection, sql)
 }

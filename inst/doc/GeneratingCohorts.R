@@ -180,8 +180,7 @@ generateCohortSet(
   cohortDatabaseSchema = "main",
   cohortTableNames = cohortTableNames,
   cohortDefinitionSet = cohortDefinitionSet,
-  incremental = TRUE,
-  incrementalFolder = file.path(someFolder, "RecordKeeping")
+  incremental = TRUE
 )
 
 ## -----------------------------------------------------------------------------
@@ -191,8 +190,7 @@ generateCohortSet(
   cohortDatabaseSchema = "main",
   cohortTableNames = cohortTableNames,
   cohortDefinitionSet = cohortDefinitionSet,
-  incremental = TRUE,
-  incrementalFolder = file.path(someFolder, "RecordKeeping")
+  incremental = TRUE
 )
 
 ## ----results='hide'-----------------------------------------------------------
