@@ -1,8 +1,8 @@
 Package: CohortGenerator
 Type: Package
 Title: Cohort Generation for the OMOP Common Data Model
-Version: 1.0.0
-Date: 2025-11-11
+Version: 1.0.1
+Date: 2025-11-17
 Authors@R: c(
   person("Anthony", "Sena", email = "sena@ohdsi.org", role = c("aut", "cre")),
   person("Jamie", "Gilbert", role = c("aut")),
@@ -17,8 +17,8 @@ Description: Generate cohorts and subsets using an Observational
   Cohorts are  defined using 'CIRCE' (<https://github.com/ohdsi/circe-be>) or 
   SQL compatible with 'SqlRender' (<https://github.com/OHDSI/SqlRender>).
 Depends: DatabaseConnector (>= 5.0.0), R (>= 4.1.0), R6
-Imports: checkmate, digest, dplyr, lifecycle, lubridate, methods,
-        ParallelLogger (>= 3.0.0), readr (>= 2.1.0), rlang, jsonlite,
+Imports: checkmate, digest, dplyr, lubridate, methods, ParallelLogger
+        (>= 3.0.0), readr (>= 2.1.0), rlang, jsonlite,
         ResultModelManager (>= 0.6.0), SqlRender (>= 1.11.1), stringi
         (>= 1.7.6), tibble
 Suggests: CirceR (>= 1.1.1), duckdb, Eunomia, ggplot2, knitr,
@@ -33,7 +33,7 @@ Encoding: UTF-8
 Language: en-US
 LazyData: true
 NeedsCompilation: no
-Packaged: 2025-11-12 12:09:56 UTC; admin_asena5
+Packaged: 2025-11-17 18:29:46 UTC; admin_asena5
 Author: Anthony Sena [aut, cre],
   Jamie Gilbert [aut],
   Gowtham Rao [aut],
@@ -41,4 +41,4 @@ Author: Anthony Sena [aut, cre],
   Martijn Schuemie [aut],
   Observational Health Data Science and Informatics [cph]
 Repository: CRAN
-Date/Publication: 2025-11-12 13:00:02 UTC
+Date/Publication: 2025-11-17 21:52:02 UTC

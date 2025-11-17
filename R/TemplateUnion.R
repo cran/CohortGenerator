@@ -78,10 +78,10 @@ createUnionCohortTemplate <- function(cohortIds,
                 ELSE 0
               END
             ) OVER (PARTITION BY c.subject_id ORDER BY c.cohort_start_date) AS group_id
-        FROM @cohort_database_scheme.@cohort_table c
+        FROM @cohort_database_schema.@cohort_table c
         WHERE c.cohort_definition_id IN (@cohort_ids)
     )
-    GROUP BY subject_id group_id
+    GROUP BY subject_id, group_id
    "
 
   # Create references for the resulting union cohort
