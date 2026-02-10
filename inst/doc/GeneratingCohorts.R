@@ -1,5 +1,6 @@
 ## ----setup, include=FALSE-----------------------------------------------------
 old <- options(width = 80)
+rsErrorsSuppressed <- options(rstudio.connectionObserver.errorsSuppressed = TRUE)
 knitr::opts_chunk$set(
   cache = FALSE,
   comment = "#>",
@@ -195,4 +196,5 @@ generateCohortSet(
 
 ## ----results='hide'-----------------------------------------------------------
 options(old)
+options(rsErrorsSuppressed)
 
