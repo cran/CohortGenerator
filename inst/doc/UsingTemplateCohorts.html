@@ -11,7 +11,7 @@
 
 <meta name="author" content="James P. Gilbert" />
 
-<meta name="date" content="2026-02-10" />
+<meta name="date" content="2026-03-03" />
 
 <title>Using Template Cohorts</title>
 
@@ -352,7 +352,7 @@ display: none;
 
 <h1 class="title toc-ignore">Using Template Cohorts</h1>
 <h4 class="author">James P. Gilbert</h4>
-<h4 class="date">2026-02-10</h4>
+<h4 class="date">2026-03-03</h4>
 
 </div>
 
@@ -450,8 +450,9 @@ connection &lt;- DatabaseConnector::connect(Eunomia::getEunomiaConnectionDetails
 ## - Created table main.cohort_inclusion_stats
 ## - Created table main.cohort_summary_stats
 ## - Created table main.cohort_censor_stats
+## - Created table main.cohort_subset_attrition
 ## - Created table main.cohort_checksum
-## Creating cohort tables took 0.07secs</code></pre>
+## Creating cohort tables took 0.06secs</code></pre>
 <pre class="r"><code>status &lt;- generateCohortSet(
   connection = connection,
   cdmDatabaseSchema = &quot;main&quot;,
@@ -495,7 +496,7 @@ SQL definitions. Consequently, we use the
 )</code></pre>
 <pre><code>## Computing cohort validation checks
 ## Computed validation checks for 0 cohorts
-## Generating validation check set took 0.04 secs</code></pre>
+## Generating validation check set took 0.03 secs</code></pre>
 <pre><code>## [1] cohortDefinitionId           overlappingErasCount        
 ## [3] invalidDateCount             duplicateCount              
 ## [5] outsideObservationStartCount outsideObservationEndCount  
