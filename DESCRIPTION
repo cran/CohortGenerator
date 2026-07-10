@@ -1,8 +1,8 @@
 Package: CohortGenerator
 Type: Package
 Title: Cohort Generation for the OMOP Common Data Model
-Version: 1.1.0
-Date: 2026-03-02
+Version: 1.1.1
+Date: 2026-07-09
 Authors@R: c(
   person("Anthony", "Sena", email = "sena@ohdsi.org", role = c("aut", "cre")),
   person("Jamie", "Gilbert", role = c("aut")),
@@ -28,12 +28,12 @@ VignetteBuilder: knitr
 URL: https://ohdsi.github.io/CohortGenerator/,
         https://github.com/OHDSI/CohortGenerator
 BugReports: https://github.com/OHDSI/CohortGenerator/issues
-RoxygenNote: 7.3.3
 Encoding: UTF-8
 Language: en-US
 LazyData: true
+Config/roxygen2/version: 8.0.0
 NeedsCompilation: no
-Packaged: 2026-03-03 12:53:23 UTC; admin_asena5
+Packaged: 2026-07-10 17:44:39 UTC; antho
 Author: Anthony Sena [aut, cre],
   Jamie Gilbert [aut],
   Gowtham Rao [aut],
@@ -41,4 +41,4 @@ Author: Anthony Sena [aut, cre],
   Martijn Schuemie [aut],
   Observational Health Data Science and Informatics [cph]
 Repository: CRAN
-Date/Publication: 2026-03-03 14:10:08 UTC
+Date/Publication: 2026-07-10 18:50:02 UTC
